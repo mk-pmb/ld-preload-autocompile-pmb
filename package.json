@@ -1,0 +1,23 @@
+{ "name": "ld-preload-autocompile-pmb",
+  "version": "1.0.0",
+  "description": "Automatically compile shared objects for LD_PRELOAD injection into another command.",
+  "keywords": [],
+
+  "author": "M.K. (https://github.com/mk-pmb)",
+  "homepage": "https://github.com/mk-pmb/ld-preload-autocompile-pmb/#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mk-pmb/ld-preload-autocompile-pmb.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mk-pmb/ld-preload-autocompile-pmb/issues"
+  },
+  "contributors": [],
+
+  "private": true, "license": "ISC",
+
+  "bin": "autoldpre.sh",
+
+
+  "engines": { "bash": ">=4.0.0" }
+}
