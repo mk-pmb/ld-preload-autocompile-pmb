@@ -3,6 +3,7 @@
 
 
 function ld_preload_autocompile () {
+  local SELFPATH="$(readlink -m -- "$BASH_SOURCE"/..)"
   local PROG="$FUNCNAME"
   local SRC= SO= LDP=
   case "$1" in
@@ -48,28 +49,7 @@ function maybe_recompile () {
     return 0
   fi
 
-  local COMPILE=(
-    gcc
-    -shared -fPIC
-
-    -Wall             # Enable most warnings
-    -Wextra           # Enable extra warnings
-    -Werror           # Treat all warnings as errors.
-    -pedantic         # Ensure strict adherence to C/C++ standards
-    -pedantic-errors  # Treat warnings from -pedantic as errors.
-    -Wunused          # Warn about unused code.
-    -Wconversion      # Warn about implicit type conversions.
-    -Wformat=2        # Validate printf/scanf format strings.
-    -Wshadow          # Warn about shadowed variables.
-    -Wfloat-equal     # Warns about ==/!= comparison on floats.
-
-    -o "$TMP_SO" "$SRC"
-
-    # Linker flags should appear _after_ all source files:
-    -ldl
-    )
-
-  "${COMPILE[@]}"
+  "$SELFPATH"/gcc-pedantic.sh -o "$TMP_SO" -shared "$SRC"
   local RV=$?
   if [ "$RV" == 0 ]; then
     mv --no-target-directory -- "$TMP_SO" "$SO" || return $?$(

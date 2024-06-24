@@ -1,5 +1,5 @@
 { "name": "ld-preload-autocompile-pmb",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Automatically compile shared objects for LD_PRELOAD injection into another command.",
   "keywords": [],
 
