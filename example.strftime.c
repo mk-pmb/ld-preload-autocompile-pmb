@@ -1,26 +1,22 @@
 #define _GNU_SOURCE // Required for statx
-#include <dlfcn.h>
-#include <fcntl.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
-
-void find_orig_func(void* *ofptr, const char *ofname) {
-  if (*ofptr) { return; }
-  *ofptr = dlsym(RTLD_NEXT, ofname);
-  if (*ofptr) { return; }
-  fprintf(stderr, "Error: dlsym(RTLD_NEXT, %s): %s\n", ofname, dlerror());
-  exit(60);
-}
+#include "lib/find_orig_func.c"
+#include "lib/stacktrace.c"
 
 
 size_t strftime(char *s, size_t max, const char *format, const struct tm *tm) {
   static size_t (*impl)(char *, size_t, const char *, const struct tm *) = NULL;
   find_orig_func((void**)&impl, "strftime");
-  printf("<< intercepted strftime(): format: '%s'>>\n", format);
+  fprintf(stderr, "<< intercepted strftime(): format: '%s'>>\n", format);
   size_t len = impl(s, max, format, tm);
-  printf("<< intercepted strftime(): result: '%s'>>\n", s);
+  fprintf(stderr, "<< intercepted strftime(): original result: '%s', ", s);
+  if (strcmp(format, " %a") == 0) { strncpy(s, "ABCDE", strlen(s)); }
+  if (strcmp(format, " %b") == 0) { strncpy(s, "FGHIJ", strlen(s)); }
+  fprintf(stderr, "modified result: '%s' >>\n", s);
+  if (strcmp(format, " %a") == 0) { stacktrace_print(16, 2); }
   return len;
 }
 

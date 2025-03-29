@@ -23,7 +23,7 @@ function ld_preload_autocompile () {
     if [[ "$1" == *.c ]]; then
       SRC="$1"; shift
       SO="${SRC%.c}.so"
-      TMP_SO="${SRC%.c}.tmp-$$.so" maybe_recompile || return $?
+      maybe_recompile || return $?
       set -- "$SO" "$@"
     fi
     [[ "$1" == *.so ]] || break
@@ -49,8 +49,14 @@ function maybe_recompile () {
     return 0
   fi
 
-  "$SELFPATH"/gcc-pedantic.sh -o "$TMP_SO" -shared "$SRC"
+  local DIR="$(dirname -- "$SRC")"
+  local BFN="$(basename -- "$SRC")"
+  local TMP_SO="${BFN%.c}.tmp-$$.so"
+
+  "$SELFPATH"/gcc-pedantic.sh --chdir "$DIR" -o "$TMP_SO" -shared "$BFN"
   local RV=$?
+
+  TMP_SO="$DIR/$TMP_SO"
   if [ "$RV" == 0 ]; then
     mv --no-target-directory -- "$TMP_SO" "$SO" || return $?$(
       echo E: $PROG: "Failed to rename '$TMP_SO'" >&2)

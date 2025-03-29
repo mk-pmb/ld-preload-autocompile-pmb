@@ -33,11 +33,22 @@ and inject it into the `date` command.
 ```text
 $ ./autoldpre.sh example.strftime.c date -uRd @1234567890
 << intercepted strftime(): format: ' %a'>>
-<< intercepted strftime(): result: ' Fri'>>
-Fri, 13 << intercepted strftime(): format: ' %b'>>
-<< intercepted strftime(): result: ' Feb'>>
-Feb 2009 23:31:30 +0000
+<< intercepted strftime(): original result: ' Fri', modified result: 'ABCD' >>
+        ^0      example.strftime.so     strftime        +0x14e  @0x7f3c6830ff37
+        ^1      date    ?       +0x52c4 @0x5622d62f92c4
+        ^2      date    ?       +0x69fe @0x5622d62fa9fe
+        ^3      date    ?       +0x4333 @0x5622d62f8333
+        ^4      date    ?       +0x3dbc @0x5622d62f7dbc
+        ^5      libc.so.6       __libc_start_main       +0xf3   @0x7f3c68110083
+        ^6      date    ?       +0x414e @0x5622d62f814e
+        ^=      strftime < ? < ? < ? < ? < __libc_start_main < ?
+<< intercepted strftime(): format: ' %b'>>
+<< intercepted strftime(): original result: ' Feb', modified result: 'FGHI' >>
+BCD, 13 GHI 2009 23:31:30 +0000
 ```
+
+This demonstrates that the `date` command really requests a space character
+at the start of the string part and then discards that first character.
 
 
 
@@ -49,11 +60,7 @@ Example: [`example.strftime.sh`](example.strftime.sh)
 
 ```text
 $ ./example.strftime.sh -uRd @1234567890
-<< intercepted strftime(): format: ' %a'>>
-<< intercepted strftime(): result: ' Fri'>>
-Fri, 13 << intercepted strftime(): format: ' %b'>>
-<< intercepted strftime(): result: ' Feb'>>
-Feb 2009 23:31:30 +0000
+# [… same output as above, except for memory offsets maybe …]
 ```
 
 

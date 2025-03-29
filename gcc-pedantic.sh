@@ -45,6 +45,7 @@ function gcc_pedantic () {
   local DEST=
   while [ "$#" -ge 1 ]; do
     case "$1" in
+      --chdir ) shift; cd -- "$1" || return $?; shift;;
       -o ) shift; DEST="$1"; shift;;
       -f* | \
       -l* | \
@@ -83,7 +84,9 @@ function gcc_pedantic () {
   set -- gcc -o "$DEST" "${EARLY_OPT[@]}" "$@" "${LATE_OPT[@]}"
   [ "$DBGLV" -lt 2 ] || echo D: $FUNCNAME: "$*" >&2
   "$@"; local GCC_RV=$?
-  [[ "$DEST" != *.so ]] || chmod a-x -- "$DEST" || true
+  [[ "$DEST" != *.so ]] || [ ! -f "$DEST" ] || chmod a-x -- "$DEST" || true
+  [ "$GCC_RV" == 0 ] || [ "$DBGLV" -lt 2 ] \
+    || echo W: $FUNCNAME: "gcc failed, rv=$GCC_RV" >&2
   return "$GCC_RV"
 }
 
