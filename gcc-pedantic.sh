@@ -22,14 +22,13 @@ function gcc_pedantic () {
 
     )
 
+  local LINKER_FLAGS=(
+    # Linker flags should appear _after_ all source files.
+    # Auto-detection for common flags is below (search for "backtrace").
+    )
+
   local LATE_OPT=(
-
-    # Linker flags should appear _after_ all source files:
-    -lbacktrace
-    -ldl
-
     -g # include debug info (to enable stack traces)
-
     )
 
   local DBGLV="${DEBUGLEVEL:-0}"
@@ -64,6 +63,15 @@ function gcc_pedantic () {
   [ -n "$FIRST_SRC" ] || return 8$(
     echo E: $FUNCNAME: 'Failed to guess primary source file.' >&2)
 
+  local ITEM='
+    s!^(backtrace)$!-l\1!p
+    s!^(dl)sym$!-l\1!p
+    '
+  ITEM="$(LANG=C grep -oPe '\b\w+(?=\s*\()' -- "$FIRST_SRC" |
+    sort -u | sed -nrf <(echo "$ITEM") | sort -u)"
+  [ "$DBGLV" -lt 2 ] || echo D: $FUNCNAME: "adding linker flags: $ITEM" >&2
+  LINKER_FLAGS+=( $ITEM )
+
   if [ -z "$DEST" ]; then
     DEST="$FIRST_SRC"
     DEST="${DEST%'.cpp'}"
@@ -81,7 +89,11 @@ function gcc_pedantic () {
     fi
   fi
 
-  set -- gcc -o "$DEST" "${EARLY_OPT[@]}" "$@" "${LATE_OPT[@]}"
+  set -- gcc -o "$DEST" \
+    "${EARLY_OPT[@]}" \
+    "${LINKER_FLAGS[@]}" \
+    "$@" \
+    "${LATE_OPT[@]}"
   [ "$DBGLV" -lt 2 ] || echo D: $FUNCNAME: "$*" >&2
   "$@"; local GCC_RV=$?
   [[ "$DEST" != *.so ]] || [ ! -f "$DEST" ] || chmod a-x -- "$DEST" || true
