@@ -58,7 +58,7 @@ function gcc_pedantic () {
   local FIRST_SRC=
   for ITEM in "$@"; do case "$ITEM" in
     -* ) continue;;
-    * ) FIRST_SRC="$1"; break;;
+    * ) FIRST_SRC="$ITEM"; break;;
   esac; done
 
   [ -n "$FIRST_SRC" ] || return 8$(
