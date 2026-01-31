@@ -7,16 +7,16 @@ function gcc_pedantic () {
 
     -fPIC
 
-    -Wall             # Enable most warnings
-    -Wextra           # Enable extra warnings
-    -Werror           # Treat all warnings as errors.
     -pedantic         # Ensure strict adherence to C/C++ standards
     -pedantic-errors  # Treat warnings from -pedantic as errors.
-    -Wunused          # Warn about unused code.
+    -Wall             # Enable most warnings
     -Wconversion      # Warn about implicit type conversions.
+    -Werror           # Treat all warnings as errors.
+    -Wextra           # Enable extra warnings
+    -Wfloat-equal     # Warns about ==/!= comparison on floats.
     -Wformat=2        # Validate printf/scanf format strings.
     -Wshadow          # Warn about shadowed variables.
-    -Wfloat-equal     # Warns about ==/!= comparison on floats.
+    -Wunused          # Warn about unused code.
 
     -rdynamic
 
